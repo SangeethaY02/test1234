@@ -1,0 +1,8 @@
+public with sharing class GenericSearchController {
+    @AuraEnabled(cacheable=true)
+    public static List<sObject> searchRecords(String keyword, String objectApiName, String fieldName) {
+        // Perform your dynamic SOQL query based on the provided parameters
+        String query = 'SELECT Id, Name, ' + fieldName + ' FROM ' + objectApiName + ' WHERE ' + fieldName + ' LIKE \'%' + keyword + '%\'';
+        return Database.query(query);
+    }
+}
