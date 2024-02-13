@@ -1,0 +1,65 @@
+public with sharing class GenericSearchController {
+    @AuraEnabled(cacheable=true)
+    public static List<sObject> searchRecords(String keyword, String objectApiName, String fieldName) {
+        // Perform your dynamic SOQL query based on the provided parameters
+        String query = 'SELECT Id, Name, ' + fieldName + ' FROM ' + objectApiName + ' WHERE ' + fieldName + ' LIKE \'%' + keyword + '%\'';
+        return Database.query(query);
+    }
+}
+
+
+<template>
+    <lightning-card title="Generic Record Search">
+        <div class="slds-m-around_medium">
+            <lightning-input label="Keyword" value={keyword} onchange={handleKeywordChange}></lightning-input>
+            <lightning-input label="Object Name" value={objectApiName} disabled></lightning-input>
+            <lightning-input label="Field to Search" value={fieldName} onchange={handleFieldNameChange}></lightning-input>
+            <lightning-button label="Search" variant="brand" onclick={handleSearch}></lightning-button>
+        </div>
+        <template if:true={records}>
+            <lightning-datatable key-field="Id" data={records} columns={columns} hide-checkbox-column="true">
+            </lightning-datatable>
+        </template>
+    </lightning-card>
+</template>
+
+import { LightningElement, api, track } from 'lwc';
+import searchRecords from '@salesforce/apex/GenericSearchController.searchRecords';
+
+const COLUMNS = [
+    { label: 'Record Name', fieldName: 'Name', type: 'text' },
+    // Add more columns based on your requirements
+                ];
+
+export default class HelloComponent extends LightningElement {
+
+    @api keyword = '';
+    @api objectApiName;
+    @api fieldName = '';
+    @track records;
+    columns = COLUMNS;
+
+    handleKeywordChange(event) {
+        this.keyword = event.target.value;
+    }
+
+    handleObjectNameChange(event) {
+        this.objectName = event.target.value;
+    }
+
+    handleFieldNameChange(event) {
+        this.fieldName = event.target.value;
+    }
+
+    handleSearch() {
+        searchRecords({ keyword: this.keyword, objectApiName: this.objectApiName, fieldName: this.fieldName })
+            .then(result => {
+                this.records = result;
+                console.log(JSON.stringify(result));
+            })
+            .catch(error => {
+                // Handle error
+                console.error('Error fetching records:', error);
+            });
+    }
+}
