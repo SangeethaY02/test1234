@@ -1,1 +1,14 @@
-
+<template>
+    <lightning-card title="Generic Record Search">
+        <div class="slds-m-around_medium">
+            <lightning-input label="Keyword" value={keyword} onchange={handleKeywordChange}></lightning-input>
+            <lightning-input label="Object Name" value={objectApiName} disabled></lightning-input>
+            <lightning-input label="Field to Search" value={fieldName} onchange={handleFieldNameChange}></lightning-input>
+            <lightning-button label="Search" variant="brand" onclick={handleSearch}></lightning-button>
+        </div>
+        <template if:true={records}>
+            <lightning-datatable key-field="Id" data={records} columns={columns} hide-checkbox-column="true">
+            </lightning-datatable>
+        </template>
+    </lightning-card>
+</template>
